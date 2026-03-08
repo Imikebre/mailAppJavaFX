@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="138.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane prefHeight="138.0" prefWidth="600.0">
+         <children>
+            <Label fx:id="emailPreview" layoutX="20.0" layoutY="79.0" prefHeight="38.0" prefWidth="559.0" text="PREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVI" wrapText="true" />
+            <Label fx:id="emailSender" layoutX="28.0" layoutY="14.0" prefHeight="23.0" prefWidth="447.0" text="SENDERMAILADDRESS">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="emailSubject" layoutX="22.0" layoutY="52.0" prefHeight="17.0" prefWidth="95.0" text="subject" />
+             <Button fx:id="emailDelete" layoutX="542.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: red; -fx-text-fill: white;">
+                 <graphic>
+                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                         <image>
+                             <Image url="@images/bin.png" />
+                         </image>
+                     </ImageView>
+                 </graphic>
+             </Button>
+
+               <ImageView fx:id="unreadBadge" fitHeight="17.0" fitWidth="11.0" layoutX="9.0" layoutY="20.0" preserveRatio="true">
+                   <image>
+                       <Image url="@images/unread-badge.png" />
+                   </image>
+               </ImageView>
+
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

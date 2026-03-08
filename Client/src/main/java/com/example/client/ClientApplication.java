@@ -2,33 +2,30 @@ package com.example.client;
 
 import com.example.client.controller.LoginController;
 import com.example.client.model.ClientModel;
-import com.example.client.model.LoginModel;
-import com.example.common.Email;
-import javafx.animation.PauseTransition;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.util.Duration;
 
+import java.io.IOException;
+
+/**
+ * @brief Starts the Mail Client application by starting the initial Scene and the login Controller and Model
+ */
 public class ClientApplication extends Application {
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client/login.fxml"));
-        Parent root = loader.load(); // prima il load!
+    public void start(Stage stage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(ClientApplication.class.getResource("/com/example/client/login.fxml"));
+        Parent fxmlroot = loader.load();
 
-        LoginController controller = loader.getController(); // poi prendi il controller
-        LoginModel model = new LoginModel();
+        LoginController controller = loader.getController(); // Instance automatically created by JAVA FX through fx:controller
+        ClientModel model = new ClientModel();
 
         controller.setModel(model);
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(fxmlroot); // Dimension are already set in the fxml
         stage.setTitle("");
         stage.setScene(scene);
         stage.show();
-
     }
 }

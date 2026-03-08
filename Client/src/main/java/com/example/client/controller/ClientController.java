@@ -2,37 +2,43 @@ package com.example.client.controller;
 
 import com.example.client.model.ClientModel;
 import com.example.common.Email;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ListView;
 
 public class ClientController {
     @FXML
     public Label mailfield;
     @FXML
-    private VBox mailListContainer;
+    private ListView<Email> listView;
+    @FXML
+    private Button sendMail;
 
-    ClientModel model;
+    private ClientModel model;
 
     public void setModel(ClientModel model) {
         this.model = model;
-        mailfield.setText(model.getMailProperty().getValue());
-        // carica le mail già presenti
-        aggiornaLista(model);
 
-        // ascolta i cambiamenti futuri
-        model.getAllMail().addListener((ListChangeListener<Email>) change -> {
-            aggiornaLista(model);
+        model.getSelectedMailProperty().addListener((ListChangeListener<Email>) c -> {
+            c.next();
+            if (c.wasAdded()) {
+                new MailViewDetails(model, c.getAddedSubList().get(0));
+            }
         });
-    }
 
-    private void aggiornaLista(ClientModel model) {
-        mailListContainer.getChildren().clear();
-        model.getAllMail().forEach(email -> {
-            Label label = new Label(email.getSender() + " - " + email.getSubject());
-            mailListContainer.getChildren().add(label);
+        sendMail.setOnAction(e -> {
+            new MailSendController(model);
         });
+
+        mailfield.setText(model.getUserMail());
+
+        listView.setItems(model.getAllMail());
+        listView.setCellFactory(list -> new MailPreviewCell(model));
     }
 
 }

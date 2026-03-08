@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox style="-fx-background-color: #F5F5DC;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER_LEFT" prefHeight="52.0" prefWidth="414.0" spacing="10">
+         <children>
+            <Region layoutX="76.0" layoutY="10.0" prefHeight="52.0" prefWidth="0.0" />
+            <Label focusTraversable="false" text="Inbox" textFill="#733b73">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <Region prefHeight="41.0" prefWidth="110.0" HBox.hgrow="ALWAYS" />
+
+                                     <Button fx:id="forward" prefHeight="14.0" prefWidth="41.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+                 <graphic>
+                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                         <image>
+                             <Image url="@images/forward.png" />
+                         </image>
+                     </ImageView>
+                 </graphic>
+                 <tooltip>
+                     <Tooltip text="Forward To" />
+                 </tooltip>
+             </Button>
+            <Region layoutX="10.0" layoutY="10.0" prefHeight="41.0" prefWidth="10.0" />
+         </children>
+      </HBox>
+      <HBox prefHeight="27.0" prefWidth="414.0">
+         <children>
+            <Region prefHeight="41.0" prefWidth="10.0" />
+            <Label focusTraversable="false" prefHeight="18.0" prefWidth="55.0" text="Sender">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Region prefHeight="27.0" prefWidth="55.0" />
+            <Label fx:id="senderLabel" focusTraversable="false" prefHeight="17.0" prefWidth="272.0" text="sendermail" />
+            <Region prefHeight="41.0" prefWidth="10.0" />
+         </children>
+      </HBox>
+      <HBox prefHeight="35.0" prefWidth="409.0">
+         <children>
+            <Region prefHeight="41.0" prefWidth="10.0" />
+            <Label focusTraversable="false" prefHeight="18.0" prefWidth="64.0" text="Recipients">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Region prefHeight="35.0" prefWidth="47.0" />
+            <Label fx:id="recipientsLabel" alignment="TOP_LEFT" focusTraversable="false" prefHeight="29.0" prefWidth="272.0" style="-fx-text-alignment: top;" text="recipientsListMails" wrapText="true">
+               <font>
+                  <Font size="10.0" />
+               </font>
+            </Label>
+            <Region prefHeight="41.0" prefWidth="10.0" />
+         </children>
+      </HBox>
+      <Region prefHeight="19.0" prefWidth="414.0" />
+      <HBox prefHeight="22.0" prefWidth="414.0">
+         <children>
+            <Region prefHeight="41.0" prefWidth="10.0" />
+            <Label fx:id="subjectLabel" prefHeight="17.0" prefWidth="393.0" text="Subject" />
+         </children>
+      </HBox>
+      <HBox>
+         <children>
+            <Region prefHeight="41.0" prefWidth="10.0" />
+            <TextArea fx:id="bodyArea" editable="false" prefHeight="249.0" prefWidth="393.0" style="-fx-border-color: #733B73;" wrapText="true" />
+            <Region prefHeight="41.0" prefWidth="10.0" />
+         </children>
+      </HBox>
+      <Region prefHeight="19.0" prefWidth="414.0" />
+      <HBox prefHeight="41.0" prefWidth="414.0">
+         <children>
+            <Region prefHeight="41.0" prefWidth="28.0" />
+             <Button fx:id="replyAll" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+                 <graphic>
+                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                         <image>
+                             <Image url="@images/reply-all.png" />
+                         </image>
+                     </ImageView>
+                 </graphic>
+                 <tooltip>
+                     <Tooltip text="Reply to sender and to all recipients" />
+                 </tooltip>
+             </Button>
+            <Region prefHeight="41.0" prefWidth="23.0" />
+
+                   <Button fx:id="reply" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+                 <graphic>
+                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                         <image>
+                             <Image url="@images/reply.png" />
+                         </image>
+                     </ImageView>
+                 </graphic>
+                 <tooltip>
+                     <Tooltip text="Reply to sender" />
+                 </tooltip>
+             </Button>
+            <Region prefHeight="41.0" prefWidth="236.0" />
+             <Button fx:id="deleteMail" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: red; -fx-background-radius: 5;">
+                 <graphic>
+                     <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                         <image>
+                             <Image url="@images/bin.png" />
+                         </image>
+                     </ImageView>
+                 </graphic>
+                 <tooltip>
+                     <Tooltip text="Delete mail ( irreversible )" />
+                 </tooltip>
+             </Button>
+            <Region prefHeight="41.0" prefWidth="27.0" />
+         </children>
+      </HBox>
+      <Region prefHeight="19.0" prefWidth="414.0" />
+   </children>
+</VBox>

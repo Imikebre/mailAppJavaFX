@@ -1,21 +1,20 @@
 package com.example.client.controller;
 
 import com.example.client.model.ClientModel;
-import com.example.client.model.LoginModel;
 import com.example.common.Email;
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
+
+import java.io.IOException;
+import java.util.List;
 
 public class LoginController {
     @FXML
@@ -25,62 +24,65 @@ public class LoginController {
     @FXML
     private Label textLabel;
 
-    private String mail = new String();
+    ClientModel model;
 
-    LoginModel model;
-    Stage stage;
-    ClientModel clientModel;
-
-    public void setModel(LoginModel model) {
+    public void setModel(ClientModel model) {
         this.model = model;
-        clientModel = new ClientModel();
-        clientModel.getMailProperty().bind(model.getMailProperty()); // bind
     }
+
 
     @FXML
     public void onLogin(){
-        mail = loginMail.getText();
-
-        if(!model.validateAddress(mail)){
+        if(!model.isValidAddress(loginMail.getText())) { //TODO
             textLabel.setText("Invalid Mail Address format, try again ( example@mail.com )");
             textLabel.setStyle("-fx-text-fill: red;");
             loginMail.clear();
-
             return;
         }
+
+        model.setUserMail(loginMail.getText());
+
         try{
             setScene();
-        } catch (Exception e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
+        }
+        catch (IOException e){
+            System.out.println(e.getMessage());
+            System.exit(1);
         }
     }
 
-    public void setScene() throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/client/client-view.fxml"));
-        Parent root = loader.load(); // prima il load!
+    public void setScene() throws IOException {
+        FXMLLoader loader = new FXMLLoader(LoginController.class.getResource("/com/example/client/client-view.fxml"));
+        Parent fxmlroot = loader.load();
 
         ClientController controller = loader.getController();
-        controller.setModel(clientModel);
+        controller.setModel(model);
 
-        ObservableList<Email> testEmails = FXCollections.observableArrayList(
-                new Email("anna@example.com", "mario@example.com", "boss@example.com", "Presentazione cliente", "Allego le slide per la presentazione di lunedì."),
-                new Email("mario@example.com", "boss@example.com", "anna@example.com", "Stato avanzamento", "Ti aggiorno sullo stato del progetto: siamo in linea con i tempi."),
-                new Email("boss@example.com", "mario@example.com", "", "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!")
+        testEmails(model);
+
+        Stage stage = (Stage) loginMail.getScene().getWindow(); // get Stage from an FXML element
+        stage.getScene().setRoot(fxmlroot); // Reuse previous scene
+        stage.setTitle("");
+        stage.setHeight(400);
+        stage.setWidth(675);
+        stage.setMaxWidth(675);
+        stage.show();
+    }
+
+    private static void testEmails(ClientModel clientModel) {
+
+        clientModel.getMailsFromFile(
+                FXCollections.observableArrayList(
+                        new Email("anna@example.com", List.of("mario@example.com, luca@libero.it, giovanni@edu.com"), "Presentazione cliente", "Allego le slide per la presentazione di lunedì."),
+                        new Email("mario@example.com", List.of("boss@example.com"), "Stato avanzamento", "Ti aggiorno sullo stato del progetto: siamo in linea con i tempi."),
+                        new Email("boss@example.com", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!")
+                )
         );
-
-        clientModel.getMailsFromFile(testEmails);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(15));
         pause.setOnFinished(event -> {
-            clientModel.addMail(new Email("PROVA", "mario@example.com", "", "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!"));
+            clientModel.addMail(new Email("PROVA", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!"));
         });
         pause.play();
-
-        Stage stage = (Stage) loginMail.getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setTitle("");
-        stage.setScene(scene);
-        stage.show();
     }
 }
