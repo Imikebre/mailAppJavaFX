@@ -113,7 +113,7 @@
                  </tooltip>
              </Button>
             <Region prefHeight="41.0" prefWidth="236.0" />
-             <Button fx:id="deleteMail" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: red; -fx-background-radius: 5;">
+             <Button fx:id="deleteEmail" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: red; -fx-background-radius: 5;">
                  <graphic>
                      <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                          <image>

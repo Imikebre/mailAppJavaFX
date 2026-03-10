@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class LoginController {
@@ -34,9 +35,12 @@ public class LoginController {
     @FXML
     public void onLogin(){
         if(!model.isValidAddress(loginMail.getText())) { //TODO
-            textLabel.setText("Invalid Mail Address format, try again ( example@mail.com )");
-            textLabel.setStyle("-fx-text-fill: red;");
-            loginMail.clear();
+            try{
+                new PopupManager(new Stage(), "Could not login", "Please insert a valid mail address : example@at.mail.com");
+            } catch (IOException e) {
+                System.err.println("Could not open popup: " + e.getMessage());
+            }
+
             return;
         }
 
@@ -73,15 +77,15 @@ public class LoginController {
 
         clientModel.getMailsFromFile(
                 FXCollections.observableArrayList(
-                        new Email("anna@example.com", List.of("mario@example.com, luca@libero.it, giovanni@edu.com"), "Presentazione cliente", "Allego le slide per la presentazione di lunedì."),
-                        new Email("mario@example.com", List.of("boss@example.com"), "Stato avanzamento", "Ti aggiorno sullo stato del progetto: siamo in linea con i tempi."),
-                        new Email("boss@example.com", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!")
+                        new Email("anna@example.com", List.of("mario@example.com, luca@libero.it, giovanni@edu.com, mario@example.com, luca@libero.it, giovanni@edu.com"), "Presentazione cliente", "Allego le slide per la presentazione di lunedì.", LocalDateTime.now()),
+                        new Email("mario@example.com", List.of("boss@example.com"), "Stato avanzamento", "Ti aggiorno sullo stato del progetto: siamo in linea con i tempi.", LocalDateTime.now()),
+                        new Email("boss@example.com", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!", LocalDateTime.now())
                 )
         );
 
         PauseTransition pause = new PauseTransition(Duration.seconds(15));
         pause.setOnFinished(event -> {
-            clientModel.addMail(new Email("PROVA", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!"));
+            clientModel.addMail(new Email("PROVA", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!", LocalDateTime.now()));
         });
         pause.play();
     }

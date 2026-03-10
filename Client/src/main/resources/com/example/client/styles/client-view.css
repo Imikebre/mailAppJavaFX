@@ -1,3 +1,24 @@
 .list-cell:hover {
     -fx-background-color: #F5F5DC;
 }
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.scroll-bar:vertical .increment-button {
+    -fx-background-color: #F5F5DC;
+}
+
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: #F5F5DC;
+}
+
+.scroll-bar:vertical .increment-arrow {
+    -fx-background-color: #733B73;
+}
+
+.scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: #733B73;
+}

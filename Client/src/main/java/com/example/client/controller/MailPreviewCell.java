@@ -1,5 +1,6 @@
 package com.example.client.controller;
 
+import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
 import com.example.common.Email;
 import javafx.fxml.FXML;
@@ -9,8 +10,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
 public class MailPreviewCell extends ListCell<Email> {
     @FXML
@@ -23,6 +28,8 @@ public class MailPreviewCell extends ListCell<Email> {
     private Button emailDelete;
     @FXML
     private ImageView unreadBadge;
+    @FXML
+    Label emailDate;
 
     private final ClientModel model;
     private Parent fxmlroot;
@@ -38,7 +45,7 @@ public class MailPreviewCell extends ListCell<Email> {
 
         this.model = model;
 
-        emailDelete.setOnAction(event -> { model.deleteMail(getItem()); event.consume(); });
+        emailDelete.setOnAction(event -> { deleteMail(); event.consume(); });
 
         setOnMouseClicked(event -> {
                 if (getItem() == null) return;
@@ -64,6 +71,28 @@ public class MailPreviewCell extends ListCell<Email> {
             unreadBadge.setVisible(false);
         else
             unreadBadge.setVisible(true);
+
+        if(item.getSentDate() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
+            String formatted = item.getSentDate().format(formatter);
+            emailDate.setText(formatted);
+        }
+        else
+            emailDate.setVisible(false);
+
         setGraphic(fxmlroot);
+    }
+
+    private void deleteMail() {
+        try{
+            model.deleteMail(getItem());
+        }
+        catch(MailException e){
+            try{
+                new PopupManager(new Stage(), "Could not delete mail", e.getMessage());
+            } catch (IOException ex) {
+                System.err.println("Could not delete mail: " + ex.getMessage());
+            }
+        }
     }
 }

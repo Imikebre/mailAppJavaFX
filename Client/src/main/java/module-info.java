@@ -5,6 +5,7 @@ module com.example.client {
     requires javafx.graphics;
     requires com.example.common;
     requires java.desktop;
+    requires java.logging;
 
     opens com.example.client to javafx.fxml;
     exports com.example.client;

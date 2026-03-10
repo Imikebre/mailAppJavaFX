@@ -1,5 +1,6 @@
 package com.example.client.controller;
 
+import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
 import com.example.common.Email;
 import javafx.fxml.FXML;
@@ -14,12 +15,14 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MailViewDetails {
     ClientModel model;
+    Logger logger = Logger.getLogger("MailClient");
 
     @FXML
-    Button deleteMail;
+    Button deleteEmail;
     @FXML
     Button replyAll;
     @FXML
@@ -38,6 +41,7 @@ public class MailViewDetails {
     public MailViewDetails(ClientModel clientModel, Email email) {
         this.model = clientModel;
         setView(email);
+        logger.info("Mail view has been created");
     }
 
     private void setView(Email email) {
@@ -58,17 +62,20 @@ public class MailViewDetails {
 
         stage.setAlwaysOnTop(true);
         stage.setResizable(false);
+
         stage.setOnCloseRequest(event -> {
             model.deselectMail(email);
         });
+
 
         senderLabel.setText(email.getSender());
         recipientsLabel.setText(email.getRecipients());
         subjectLabel.setText(email.getSubject());
         bodyArea.setText(email.getBody());
 
-        deleteMail.setOnAction(event -> {
-            model.deleteMail(email);
+        deleteEmail.setOnAction(event -> {
+            model.deselectMail(email);
+            model.forceDeleteMail(email);
             stage.close();
         });
 

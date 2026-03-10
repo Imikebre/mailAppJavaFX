@@ -18,6 +18,8 @@ public class ClientController {
     private ListView<Email> listView;
     @FXML
     private Button sendMail;
+    @FXML
+    private Label emptyLabel;
 
     private ClientModel model;
 
@@ -36,6 +38,7 @@ public class ClientController {
         });
 
         mailfield.setText(model.getUserMail());
+        emptyLabel.visibleProperty().bind(model.mailIsEmptyProperty());
 
         listView.setItems(model.getAllMail());
         listView.setCellFactory(list -> new MailPreviewCell(model));

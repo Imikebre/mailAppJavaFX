@@ -6,19 +6,20 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="138.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane prefHeight="138.0" prefWidth="600.0">
+      <Pane prefHeight="140.0" prefWidth="600.0">
          <children>
-            <Label fx:id="emailPreview" layoutX="20.0" layoutY="79.0" prefHeight="38.0" prefWidth="559.0" text="PREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVIEWPREVI" wrapText="true" />
-            <Label fx:id="emailSender" layoutX="28.0" layoutY="14.0" prefHeight="23.0" prefWidth="447.0" text="SENDERMAILADDRESS">
+            <Label fx:id="emailPreview" layoutX="33.0" layoutY="103.0" prefHeight="23.0" prefWidth="545.0" text="PREVIWWWW" wrapText="true" />
+            <Label fx:id="emailSender" layoutX="31.0" layoutY="13.0" prefHeight="23.0" prefWidth="447.0" text="SENDERMAILADDRESS">
                <font>
                   <Font size="18.0" />
                </font>
             </Label>
-            <Label fx:id="emailSubject" layoutX="22.0" layoutY="52.0" prefHeight="17.0" prefWidth="95.0" text="subject" />
+            <Label fx:id="emailSubject" layoutX="31.0" layoutY="78.0" prefHeight="17.0" prefWidth="276.0" text="subject" textFill="#733b73" />
              <Button fx:id="emailDelete" layoutX="542.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: red; -fx-text-fill: white;">
                  <graphic>
                      <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
@@ -29,12 +30,13 @@
                  </graphic>
              </Button>
 
-               <ImageView fx:id="unreadBadge" fitHeight="17.0" fitWidth="11.0" layoutX="9.0" layoutY="20.0" preserveRatio="true">
+               <ImageView fx:id="unreadBadge" fitHeight="17.0" fitWidth="11.0" layoutX="8.0" layoutY="19.0" preserveRatio="true">
                    <image>
                        <Image url="@images/unread-badge.png" />
                    </image>
                </ImageView>
-
+            <Label fx:id="emailDate" layoutX="31.0" layoutY="41.0" prefHeight="17.0" prefWidth="109.0" text="08/03/26 11:15" />
+            <Line endX="299.5" fill="#733b73" layoutX="278.0" layoutY="69.0" startX="-245.5" stroke="#733b73" />
          </children>
       </Pane>
    </children>
