@@ -14,6 +14,7 @@ import java.io.IOException;
  * A utility class responsible for creating and displaying modal popup windows.
  * It handles both standard notifications and error alerts based on the specified type,
  * blocking the underlying user interface until the popup is closed by the user.
+ * @author Michele Brescia
  */
 public class PopupManager {
     @FXML

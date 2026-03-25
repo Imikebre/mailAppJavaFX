@@ -14,6 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Core model for the Mail Client application.
+ * <p>
+ * This class serves as the central data store for the client-side application,
+ * managing the list of emails and UI-bound properties. It also handles all
+ * network communications with the remote server using a custom socket protocol.
+ * </p>
+ * @author Michele Brescia
+ */
 public class ClientModel {
     private static final int serverPort = 1430;
     private static final String ip = "127.0.0.1";
@@ -51,6 +60,9 @@ public class ClientModel {
         forceDeleteMail(email);
     }
 
+    /**
+     * @Warning This method is used to the JavaFX App
+     */
     public void TestDeleteAllMails() throws MailException {
         List<Email> snap;
 
@@ -63,6 +75,11 @@ public class ClientModel {
         }
     }
 
+    /**
+     * Deletes a mail even if it is in a "selected state"
+     * @param email
+     * @throws MailException
+     */
     public void forceDeleteMail(Email email) throws MailException{
 
         try ( Socket socket = new Socket(ip, serverPort) ){

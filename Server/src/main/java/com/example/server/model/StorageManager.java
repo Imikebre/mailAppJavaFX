@@ -3,11 +3,20 @@ package com.example.server.model;
 import com.example.common.Email;
 import com.example.server.model.exceptions.ModelException;
 import com.google.gson.Gson;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages the data persistence layer for the email server.
+ * <p>
+ * This class handles saving and restoring the server state, including
+ * global metadata (ID counters) and individual user mailboxes, using
+ * JSON serialization via the Gson library.
+ * </p>
+ *
+ * @author Michele Brescia
+ */
 class StorageManager {
     private final String mailBoxesDir = System.getProperty("user.home") + "/mailAppJavaBresciaP3/data/mailBoxes/";
     private final String dataDir = System.getProperty("user.home") + "/mailAppJavaBresciaP3/data";
@@ -29,7 +38,6 @@ class StorageManager {
          } catch (IOException e) {
              throw new ModelException(ModelException.ErrorCode.OPERATION_FAILED, "Could not save mail to file");
          }
-
     }
 
     void saveDataToFile(StorageData data) throws ModelException {
@@ -49,9 +57,6 @@ class StorageManager {
             StorageData data =  restoreObjectFromFile(file, StorageData.class);
 
             data.users = new ArrayList<>();
-            System.out.println("data: " + data);
-            System.out.println("users: " + data.users);
-
             File dir = new File(mailBoxesDir );
 
             File[] users = dir.listFiles();
@@ -64,7 +69,6 @@ class StorageManager {
                     System.out.println("user: " + f.getName());
                 }
             }
-
             return data;
         } catch (FileNotFoundException e) {
             throw new ModelException(ModelException.ErrorCode.FILE_NOT_FOUND, "");
@@ -86,32 +90,14 @@ class StorageManager {
                 if(ids == null || ids.contains(Long.parseLong(file.getName().replace("mail", "").replace(".json", ""))))
                     mails.add(restoreObjectFromFile(file, Email.class));
             }
+            catch (FileNotFoundException e) { // In case of file deletion
+                continue;
+            }
             catch (IOException e) {
-
                 throw new ModelException(ModelException.ErrorCode.OPERATION_FAILED, "Could not restore Email from file");
             }
         }
         return mails;
-    }
-
-    void deleteAllMails(String name) throws ModelException {
-        StringBuilder errors = new StringBuilder();
-
-        File dir = new File(mailBoxesDir + "/" + name);
-        File[] files = dir.listFiles();
-
-        if (files != null)
-            for (File file : files)
-                if (!file.delete())
-                    errors.append("Could not delete file: ").append(file.getName()).append("\n");
-        else
-            throw new ModelException(ModelException.ErrorCode.USER_NOT_FOUND, "");
-
-        if (!dir.delete())
-            errors.append("Could not delete directory: ").append(dir.getName()).append("\n");
-
-        if (!errors.isEmpty())
-            throw new ModelException(ModelException.ErrorCode.OPERATION_FAILED, errors.toString());
     }
 
     void deleteMailFromFile(String owner, int id) throws ModelException {

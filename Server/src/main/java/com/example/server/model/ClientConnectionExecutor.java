@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  *     <li>requestor_user_mail</li>
  * </ul>
  * </p>
+ * @author Michele Brescia
  */
 class ClientConnectionExecutor implements Runnable {
     private Socket incoming;

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author Michele Brescia
+ */
 public class MailAppTest {
 
     static class Counter{
@@ -72,6 +75,7 @@ public class MailAppTest {
 
 /**
  * Test class to test concurrence while sending, requesting updates and deleting emails
+ * @author Michele Brescia
  */
 class UserTest implements Runnable{
     String user;
@@ -132,9 +136,9 @@ class UserTest implements Runnable{
 
     }
 }
-
-
-
+/**
+ * @author Michele Brescia
+ */
 class MinimalStorageManager {
     static int N_TEST_USERS = 10;
 

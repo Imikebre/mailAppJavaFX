@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Main client application controller.
+ * @author Michele Brescia
  */
 public class ClientController {
     @FXML

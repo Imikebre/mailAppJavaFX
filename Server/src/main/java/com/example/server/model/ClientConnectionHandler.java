@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
  * safely breaking the blocking {@code accept()} loop without causing application crashes. </li>
  * </ul>
  * </p>
+ * @author Michele Brescia
  */
 public class ClientConnectionHandler implements Runnable {
     private final ServerModel model;

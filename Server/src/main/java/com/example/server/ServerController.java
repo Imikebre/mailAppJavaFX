@@ -10,6 +10,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Controller class for the Server's Graphical User Interface.
+ * <p>
+ * This class handles UI events, binds the view components to the {@link ServerModel},
+ * and manages user interactions such as adding new users, toggling the server state,
+ * and managing the system log console.
+ * </p>
+ *
+ * @author Michele Brescia
+ */
 public class ServerController {
     @FXML
     public Button userAdd;
@@ -30,10 +40,10 @@ public class ServerController {
         this.model.getLogStringProperty().addListener((observable, oldValue, newValue) -> {
             if(console.getLength() > 50000 )
                 console.clear();
-            if(newValue.equals("Shutting down")) {
+            if(newValue.contains("Shutting down")) {
                 console.setStyle("-fx-text-fill: red;");
             }
-            if(newValue.equals("Going live")) {
+            if(newValue.contains("Going live")) {
                 console.setStyle("-fx-text-fill: black;");
             }
             console.appendText("\n"+newValue+"\n");
@@ -98,7 +108,7 @@ public class ServerController {
     @FXML
     public void clearView() {
         console.clear();
-        console.appendText("Console has been cleared\n");
+        model.setLogString("Console has been cleared\n");
     }
     @FXML
     public void saveLog() {

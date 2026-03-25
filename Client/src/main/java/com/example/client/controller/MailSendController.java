@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * A controller for the "sending" routine of an Email object.
+ * @author Michele Brescia
  */
 public class MailSendController {
     private ClientModel model;

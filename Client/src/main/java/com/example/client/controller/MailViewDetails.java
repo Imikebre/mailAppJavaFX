@@ -20,6 +20,7 @@ import java.util.List;
 /**
  * A mail preview controller whose main task is to provide a detailed view of an incoming Email object.
  * Through the UI buttons, it creates a MailSendController with pre-filled fields to speed up replying and forwarding operations
+ * @author Michele Brescia
  */
 public class MailViewDetails {
     ClientModel model;
@@ -82,9 +83,9 @@ public class MailViewDetails {
 
         deleteEmail.setOnAction(event -> {
             new Thread(() -> {
-                model.deselectMail(email);
                 try{
                     model.forceDeleteMail(email); // force deletes to bypass selected mail restriction
+                    model.deselectMail(email);
                     Platform.runLater(()-> stage.close()); // UI operations run by JavaFX thread
                 }
                 catch(MailException e){
@@ -96,7 +97,6 @@ public class MailViewDetails {
                             ex.printStackTrace();
                         }
                     });
-                    model.selectMail(email); // Return to selected state if deletion failed
                 }
             }).start();
         });

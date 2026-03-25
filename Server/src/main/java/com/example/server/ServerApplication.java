@@ -20,6 +20,7 @@ public class ServerApplication extends Application {
 
         controller.setModel(model);
         controller.setStage(stage);
+        model.initialize();
 
         stage.setTitle("");
         stage.setScene(scene);

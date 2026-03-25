@@ -15,6 +15,7 @@ import java.io.IOException;
 /**
  * A  Controller that handles the login routine using the ClientModel methods
  * It's responsible to configure the Client Controller to start the application.
+ * @author Michele Brescia
  */
 public class LoginController {
     @FXML

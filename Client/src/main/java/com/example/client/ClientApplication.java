@@ -12,6 +12,7 @@ import java.io.IOException;
 
 /**
  *  Starts the Mail Client application by starting the initial Scene and the login Controller and model
+ *  @author Michele Brescia
  */
 public class ClientApplication extends Application {
     public void start(Stage stage) throws IOException {

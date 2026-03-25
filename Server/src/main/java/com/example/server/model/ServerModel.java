@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li> <b>UI Binding:</b> Exposes JavaFX {@link javafx.beans.property.Property} objects (like logs and registered user counts) to be safely observed by the Server UI. </li>
  * </ul>
  * </p>
+ * @author Michele Brescia
  */
 public class ServerModel {
     private final StorageManager storageManager = new StorageManager();
@@ -47,19 +48,24 @@ public class ServerModel {
 
 
     public ServerModel() throws IOException {
+    }
+
+    public void initialize(){
         try{
             StorageManager.StorageData storageData = storageManager.restoreServerState(mailRegex);
+            setLogString("Users registered : ");
             for (String user : storageData.users){
+                setLogString(user);
                 usersInbox.put(user, new ArrayList<>());
             }
-
+            setLogString("Id counter value :  " + storageData.idCounter);
             idCounter.set(storageData.idCounter);
             usersRegistered.setValue(usersInbox.size());
         }catch (ModelException e){
             if(e.getCode() == ModelException.ErrorCode.OPERATION_FAILED)
-                logString.setValue(e.getMessage());
+                setLogString(e.getMessage());
 
-            logString.setValue("Data not found, proceeding with blank values");
+            setLogString("Data not found, proceeding with blank values");
             usersRegistered.setValue(0);
         }
         goLive();
@@ -73,7 +79,7 @@ public class ServerModel {
 
     public SimpleIntegerProperty getUsersRegisteredProperty(){ return usersRegistered; }
     public SimpleStringProperty getLogStringProperty(){ return logString; }
-    void setLogString(String logString){ Platform.runLater(() -> this.logString.setValue(LocalDateTime.now().format(formatter)+ " - " + logString)); }
+    public void setLogString(String logString){ Platform.runLater(() -> this.logString.setValue(LocalDateTime.now().format(formatter)+ " - " + logString)); }
 
     /*
      *
@@ -92,13 +98,13 @@ public class ServerModel {
             storageManager.saveState(new StorageManager.StorageData(idCounter.get()));
         }
         catch (ModelException e){
-            logString.setValue(e.getMessage());
+            setLogString(e.getMessage());
             throw new ServerModelException("");
         }
     }
 
     public void shutdown(){
-        logString.setValue("Shutting down");
+        setLogString("Shutting down");
         handler.stopServer();
         try {
             serverThread.join(); // waits for executors to finish
@@ -108,14 +114,14 @@ public class ServerModel {
     }
 
     public void goLive(){
-        logString.setValue("Going live");
+        setLogString("Going live");
         serverThread = new Thread(()->{
             try {
                 handler = new ClientConnectionHandler(this, PORT);
                 handler.run();
             }
             catch (ModelException e) {
-                logString.setValue("Couldn't start ClientConnectionHandler : " + e.getMessage());
+                setLogString("Couldn't start ClientConnectionHandler : " + e.getMessage());
             }
         });
 
@@ -128,7 +134,7 @@ public class ServerModel {
         if(mail.matches(mailRegex)){
             try{ storageManager.createUserFolder(mail); }
             catch (ModelException e){
-                logString.setValue(e.getMessage());
+                setLogString(e.getMessage());
                 throw new ServerModelException("Couldn't create user");
             }
 
