@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="176.0" prefWidth="280.0" spacing="20.0" style="-fx-background-color: #1E2A3A;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.ServerController">
+<VBox alignment="CENTER" prefHeight="302.0" prefWidth="400.0" spacing="20.0" style="-fx-background-color: #1E2A3A;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.ServerController">
   <padding>
     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
   </padding>
@@ -48,9 +48,11 @@
                </graphic>
             </Button>
             <Region prefHeight="26.0" prefWidth="28.0" HBox.hgrow="ALWAYS" />
-            <Button onAction="#clearView" prefHeight="26.0" prefWidth="46.0" style="-fx-background-color: #2ecc71;" text="Clear" textFill="#1e2a3a" />
-            <Region layoutX="42.0" layoutY="10.0" prefHeight="26.0" prefWidth="15.0" HBox.hgrow="ALWAYS" />
+            <Button onAction="#clearView" style="-fx-background-color: #2ecc71;" text="Clear" textFill="#1e2a3a" />
+            <Region layoutX="42.0" layoutY="10.0" prefHeight="26.0" prefWidth="20.0" HBox.hgrow="ALWAYS" />
             <ToggleButton fx:id="toggle" mnemonicParsing="false" style="-fx-background-color: #2ecc71;" text="Shutdown" textFill="#1e2a3a" />
+            <Region layoutX="117.0" layoutY="10.0" prefHeight="26.0" prefWidth="20.0" HBox.hgrow="ALWAYS" />
+            <Button layoutX="94.0" layoutY="10.0" onAction="#saveLog" style="-fx-background-color: #2ecc71;" text="Save Log" textFill="#1e2a3a" />
          </children>
       </HBox>
       <TextField fx:id="userMail" managed="false" prefHeight="18.0" prefWidth="186.0" promptText="Insert a new mail here" style="-fx-border-color: #2ECC71;" visible="false" VBox.vgrow="NEVER" />

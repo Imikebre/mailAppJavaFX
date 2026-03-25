@@ -2,6 +2,7 @@ package com.example.client.controller;
 
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
+import com.example.client.utility.PopupManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,7 +13,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * A single Threaded Controller that handles the login routine using the ClientModel methods
+ * A  Controller that handles the login routine using the ClientModel methods
  * It's responsible to configure the Client Controller to start the application.
  */
 public class LoginController {
@@ -41,7 +42,7 @@ public class LoginController {
         try { model.isValidAddress(loginMail.getText()); }
         catch ( MailException e ){
             try{
-                new PopupManager(new Stage(), "Could not login", e.getMessage(), "ERROR");
+                new PopupManager().showView(new Stage(), "Could not login", e.getMessage(), "ERROR");
             } catch (IOException x) {
                 System.err.println("Could not open popup: " + x.getMessage());
             }

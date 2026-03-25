@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="298.0" spacing="10" style="-fx-background-color: #F5F5DC;" stylesheets="@styles/client-view.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client.controller.ClientController">
+<VBox alignment="TOP_CENTER" prefHeight="370.0" prefWidth="298.0" spacing="10" style="-fx-background-color: #F5F5DC;" stylesheets="@styles/client-view.css" xmlns="http://javafx.com/javafx/21.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.client.controller.ClientController">
 
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />

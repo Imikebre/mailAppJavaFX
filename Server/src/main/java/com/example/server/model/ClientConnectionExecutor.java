@@ -13,16 +13,26 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 /**
- * Calls model methods :
- * - OK model.checkUserExists(message)
- * - OK model.getUserMailbox(message,mode)
- * - OK model.sendMail(new Email(sender, recipientsList, subject, body));
- * - model.deleteMail(mailboxAccount, Integer.parseInt(id));
+ * Executes a Client request and closes the connection afterward
+ *
+ * <p> This executor handles the network communication and relies on the main model to perform the following operations:
+ * <ul>
+ * <li>{@link ServerModel#checkUserExists(String)}</li>
+ * <li>{@link ServerModel#getUserMailbox(String, boolean)}</li>
+ * <li>{@link ServerModel#sendMail(Email)}</li>
+ * <li>{@link ServerModel#deleteMail(String, int)}</li>
+ * </ul>
+ * Request Protocol is structured as follows :
+ * <ul>
+ *     <li>REQUEST_TYPE</li>
+ *     <li>requestor_user_mail</li>
+ * </ul>
+ * </p>
  */
 class ClientConnectionExecutor implements Runnable {
     private Socket incoming;
     private ServerModel model;
-    private long threadId = Thread.currentThread().getId();
+    private long threadId;
 
     ClientConnectionExecutor(Socket socket,ServerModel model) {
         this.incoming = socket;
@@ -31,6 +41,8 @@ class ClientConnectionExecutor implements Runnable {
 
     @Override
     public void run() {
+        threadId = Thread.currentThread().getId();
+
         try{
             model.setLogString(threadId + " - Handling request ...");
 
@@ -88,6 +100,26 @@ class ClientConnectionExecutor implements Runnable {
         }
     }
 
+    /**
+     * <p>
+     *     Login protocol :
+     *     <ul>
+     *         <li>
+     *             Additional sends by client
+     *             <ul>
+     *                 <li>None</li>
+     *             </ul>
+     *         </li>
+     *         <li>
+     *             Server Reply
+     *             <ul>
+     *                 <li> OK : in case of success </li>
+     *                 <li> ERR : in case of non success </li>
+     *             </ul>
+     *         </li>
+     *     </ul>
+     * </p>
+     */
     private void loginRequest(PrintWriter out ,boolean authResult) throws IOException {
        if(authResult){
            out.println("OK");
@@ -99,7 +131,34 @@ class ClientConnectionExecutor implements Runnable {
            model.setLogString(threadId + " - Completed request with result : \"ERR\"");
        }
     }
-
+    /**
+     * <p>
+     * Update protocol:
+     * <ul>
+     * <li>
+     * Server Reply:
+     * <ul>
+     * <li> {@code START} : marks the beginning of the mailbox data </li>
+     * <li>
+     * For each email in the mailbox, the following 6 lines are sent:
+     * <ul>
+     * <li> {@code Sender} </li>
+     * <li> {@code Recipients} </li>
+     * <li> {@code Subject} </li>
+     * <li> {@code Body} (with newlines escaped as {@code \\n}) </li>
+     * <li> {@code SentDate} </li>
+     * <li> {@code ID} </li>
+     * </ul>
+     * </li>
+     * <li> {@code END} : marks the end of the mailbox data </li>
+     * </ul>
+     * </li>
+     * </ul>
+     * </p>
+     * @param out         the PrintWriter connected to the client socket
+     * @param userMailbox the list of emails to be sent to the client
+     * @throws IOException if an I/O error occurs while writing to the stream
+     */
     private void updateRequest(PrintWriter out , ArrayList<Email> userMailbox) throws IOException {
 
         out.println("START");
@@ -107,20 +166,52 @@ class ClientConnectionExecutor implements Runnable {
         if(userMailbox.isEmpty()){
             out.println("END");
         }
+        else{
+            for(Email email : userMailbox){
+                out.println(email.getSender());
+                out.println(email.getRecipients());
+                out.println(email.getSubject());
+                out.println(email.getBody().replace("\n", "\\n"));
+                out.println(email.getSentDate());
+                out.println(email.getId());
+            }
 
-        for(Email email : userMailbox){
-            out.println(email.getSender());
-            out.println(email.getRecipients());
-            out.println(email.getSubject());
-            out.println(email.getBody().replace("\n", "\\n"));
-            out.println(email.getSentDate());
-            out.println(email.getId());
+            out.println("END");
         }
 
-        out.println("END");
         model.setLogString(threadId + " - Completed request with result : \"OK\"");
     }
 
+    /**
+     * Handles the server-side protocol for receiving and processing a client's request to send an email.
+     * <p>
+     * Send Mail protocol:
+     * <ul>
+     * <li>
+     * Client Request format:
+     * <ul>
+     * <li> {@code START} : marks the beginning of the request </li>
+     * <li> {@code Sender} : the email address of the sender </li>
+     * <li> {@code Recipients} : comma-separated list of recipient email addresses </li>
+     * <li> {@code Subject} : the subject of the email </li>
+     * <li> {@code Body} : the body of the email (with newlines escaped as {@code \n}) </li>
+     * <li> {@code END} : marks the end of the request </li>
+     * </ul>
+     * </li>
+     * <li>
+     * Server Reply:
+     * <ul>
+     * <li> {@code OK} : if the email was successfully processed and sent </li>
+     * <li> {@code ERR} followed by an error message : if the protocol is violated, a keyword is missing, or a {@link ModelException} occurs </li>
+     * </ul>
+     * </li>
+     * </ul>
+     * </p>
+     *
+     * @param out the {@link PrintWriter} used to send the response back to the client
+     * @param in  the {@link Scanner} used to read the incoming request lines from the client socket
+     * @throws IOException if an I/O error occurs while communicating over the socket
+     */
     private void sendMailRequest(PrintWriter out, Scanner in) throws IOException {
 
         if(!in.nextLine().equals("START")){
@@ -164,6 +255,34 @@ class ClientConnectionExecutor implements Runnable {
 
     }
 
+    /**
+     * Handles the server-side protocol for receiving and processing a client's request to delete an email.
+     * <p>
+     * Delete Mail protocol:
+     * <ul>
+     * <li>
+     * Client Request format:
+     * <ul>
+     * <li> {@code START} : marks the beginning of the request </li>
+     * <li> {@code Mailbox Account} : the email address of the account owning the mailbox </li>
+     * <li> {@code Email ID} : the unique integer identifier of the email to be deleted </li>
+     * <li> {@code END} : marks the end of the request </li>
+     * </ul>
+     * </li>
+     * <li>
+     * Server Reply:
+     * <ul>
+     * <li> {@code OK} : if the email was successfully deleted </li>
+     * <li> {@code ERR} followed by an error message : if the protocol is violated, the ID is invalid, or a {@link ModelException} occurs </li>
+     * </ul>
+     * </li>
+     * </ul>
+     * </p>
+     *
+     * @param out the {@link PrintWriter} used to send the response back to the client
+     * @param in  the {@link Scanner} used to read the incoming request lines from the client socket
+     * @throws IOException if an I/O error occurs while communicating over the socket
+     */
     private void deleteMailRequest(PrintWriter out, Scanner in) throws IOException {
         if(!in.nextLine().equals("START")){
             out.println("ERR");
@@ -177,10 +296,11 @@ class ClientConnectionExecutor implements Runnable {
 
         if(in.nextLine().equals("END"))
             try{
-                model.deleteMail(mailboxAccount, Integer.parseInt(id));
+                model.deleteMail(mailboxAccount, Integer.parseInt(id)); // Throws number format exception
                 out.println("OK");
+                model.setLogString(threadId + " - Completed request with result : \"OK\"");
             }
-            catch (ModelException e){
+            catch (ModelException | NumberFormatException e){
                 out.println("ERR");
                 out.println(e.getMessage());
                 model.setLogString(threadId + " - Completed request with result : \"ERR\"");

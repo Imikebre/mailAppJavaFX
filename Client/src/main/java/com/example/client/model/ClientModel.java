@@ -158,13 +158,11 @@ public class ClientModel {
                     Platform.runLater(() ->{
                         mails.add(new Email(sender, recipientsList, subject, body, sentDate, id));
                         emptyProperty.setValue(mails.isEmpty());
-
-                        if(!setupProperty.getValue())
-                            setupProperty.setValue(true);
                         emptyProperty.setValue(mails.isEmpty());
                     });
                 }
 
+                if (mode.equals("true")) { Platform.runLater(() -> setupProperty.setValue(true)); }
             }
             else{
                 throw new MailException("Could not interpret server message" + message);

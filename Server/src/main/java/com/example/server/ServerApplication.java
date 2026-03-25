@@ -13,7 +13,7 @@ public class ServerApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ServerApplication.class.getResource("server-view.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load());
 
         ServerModel model = new ServerModel();
         ServerController controller = fxmlLoader.getController();

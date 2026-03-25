@@ -15,7 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
+/**
+ * Model in the MVC pattern.
+ * <p>
+ * This class is responsible for managing the entire business logic and state of the mail server.
+ * It handles:
+ * <ul>
+ * <li> <b>State Management:</b> Maintains the in-memory representation of user inboxes using a thread-safe {@link ConcurrentHashMap}. </li>
+ * <li> <b>Persistence:</b> Interfaces with the {@link StorageManager} to load and save emails and server state to the disk. </li>
+ * <li> <b>Concurrency:</b> Ensures thread-safe operations when multiple clients attempt to send, read, or delete emails simultaneously</li>
+ * <li> <b>UI Binding:</b> Exposes JavaFX {@link javafx.beans.property.Property} objects (like logs and registered user counts) to be safely observed by the Server UI. </li>
+ * </ul>
+ * </p>
+ */
 public class ServerModel {
     private final StorageManager storageManager = new StorageManager();
     private final Map<String, List<Long>> usersInbox = new ConcurrentHashMap<>();
@@ -53,11 +65,86 @@ public class ServerModel {
         goLive();
     }
 
+    /*
+     *
+     ****************************************** GETTERS AND SETTERS
+     *
+     */
+
     public SimpleIntegerProperty getUsersRegisteredProperty(){ return usersRegistered; }
     public SimpleStringProperty getLogStringProperty(){ return logString; }
-    void setLogString(String logString){
-        Platform.runLater(() -> this.logString.setValue(LocalDateTime.now().format(formatter)+ " - " + logString));
+    void setLogString(String logString){ Platform.runLater(() -> this.logString.setValue(LocalDateTime.now().format(formatter)+ " - " + logString)); }
+
+    /*
+     *
+     ****************************************** SERVER LIFECYCLE
+     *
+     */
+
+    public String getDataDir(){
+        return storageManager.getDataDir();
     }
+
+    public void saveState () throws ServerModelException{
+        try{
+            shutdown();
+            System.out.println("Server saving state");
+            storageManager.saveState(new StorageManager.StorageData(idCounter.get()));
+        }
+        catch (ModelException e){
+            logString.setValue(e.getMessage());
+            throw new ServerModelException("");
+        }
+    }
+
+    public void shutdown(){
+        logString.setValue("Shutting down");
+        handler.stopServer();
+        try {
+            serverThread.join(); // waits for executors to finish
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void goLive(){
+        logString.setValue("Going live");
+        serverThread = new Thread(()->{
+            try {
+                handler = new ClientConnectionHandler(this, PORT);
+                handler.run();
+            }
+            catch (ModelException e) {
+                logString.setValue("Couldn't start ClientConnectionHandler : " + e.getMessage());
+            }
+        });
+
+        serverThread.setDaemon(true);
+        serverThread.start();
+    }
+
+    public void addUser(String mail) throws ServerModelException{
+
+        if(mail.matches(mailRegex)){
+            try{ storageManager.createUserFolder(mail); }
+            catch (ModelException e){
+                logString.setValue(e.getMessage());
+                throw new ServerModelException("Couldn't create user");
+            }
+
+        }
+        else{
+            throw new ServerModelException("Invalid mail address");
+        }
+        usersInbox.put(mail, new ArrayList<>());
+        usersRegistered.setValue(usersRegistered.getValue() + 1);
+    }
+
+    /*
+     *
+     ****************************************** CLIENTS REQUEST EXECUTIONS METHODS
+     *
+     */
 
     void sendMail(Email email) throws ModelException {
         List<String> usersNotRegistered = mailAddressesCheck(email);
@@ -80,76 +167,7 @@ public class ServerModel {
             throw new ModelException(ModelException.ErrorCode.OPERATION_FAILED, "Invalid recipients : " + String.join(", ", usersNotRegistered));
     }
 
-    private List<String> mailAddressesCheck(Email email) {
-        List<String> usersNotRegistered = new ArrayList<>();
-        List<String> mails = email.getRecipientsList();
-        mails.add(email.getSender());
-
-        for( String mail : mails )
-            if ( !usersInbox.containsKey(mail))
-                usersNotRegistered.add(mail);
-
-        return usersNotRegistered;
-    }
-
-    /** WORKS **/
-
-    public void shutdown(){
-        logString.setValue("Shutting down");
-        handler.stopServer();
-        try {
-            serverThread.join();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-    public void goLive(){
-        logString.setValue("Going live");
-        serverThread = new Thread(()->{
-            try {
-                handler = new ClientConnectionHandler(this, PORT);
-                handler.run();
-            }
-            catch (ModelException e) {
-                logString.setValue("Couldn't start ClientConnectionHandler : " + e.getMessage());
-            }
-        });
-
-        serverThread.setDaemon(true);
-        serverThread.start();
-    }
-
-    public void saveState () throws ServerModelException{
-        try{
-            shutdown();
-            System.out.println("Server saving state");
-            storageManager.saveState(new StorageManager.StorageData(idCounter.get()));
-        }
-        catch (ModelException e){
-            logString.setValue(e.getMessage());
-            throw new ServerModelException("");
-        }
-    }
-
-    public void addUser(String mail) throws ServerModelException{
-
-        if(mail.matches(mailRegex)){
-            try{ storageManager.createUserFolder(mail); }
-            catch (ModelException e){
-                logString.setValue(e.getMessage());
-                throw new ServerModelException("Couldn't create user");
-            }
-
-        }
-        else{
-            throw new ServerModelException("Invalid mail address");
-        }
-        usersInbox.put(mail, new ArrayList<>());
-        usersRegistered.setValue(usersRegistered.getValue() + 1);
-    }
-
     /**
-     *
      * @param user user from which the mailbox should be retrieved
      * @param mode if true retrieves all mails, otherwise only newly arrived
      * @return A list of the mails retrieved
@@ -173,9 +191,28 @@ public class ServerModel {
     }
 
     void deleteMail(String owner, int id) throws ModelException{
-        synchronized (usersInbox.get(owner)){
-            storageManager.deleteMailFromFile(owner, id);
-        }
+        //synchronized (usersInbox.get(owner)){
+        //    storageManager.deleteMailFromFile(owner, id); // Not necessary
+        //}
+        storageManager.deleteMailFromFile(owner, id);
+    }
+
+    /*
+     *
+     ****************************************** AIDING METHODS
+     *
+     */
+
+    private List<String> mailAddressesCheck(Email email) {
+        List<String> usersNotRegistered = new ArrayList<>();
+        List<String> mails = email.getRecipientsList();
+        mails.add(email.getSender());
+
+        for( String mail : mails )
+            if ( !usersInbox.containsKey(mail))
+                usersNotRegistered.add(mail);
+
+        return usersNotRegistered;
     }
 
     synchronized boolean checkUserExists(String mailAddress){

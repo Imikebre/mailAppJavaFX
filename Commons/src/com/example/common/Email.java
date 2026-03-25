@@ -1,9 +1,28 @@
 package com.example.common;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+/**
+ * Represents a single email entity within the mail system.
+ * <p>
+ * This class serves as a Data Transfer Object (DTO) shared between the client and the server.
+ * It encapsulates all necessary information for an email,
+ * content, and server-side metadata like unique identifiers and timestamps.
+ * </p>
+ * <p>
+ * <b>Design Considerations:</b>
+ * <ul>
+ * <li> <b>Duplicate Handling:</b> The primary constructor automatically filters duplicate
+ * recipient addresses using a {@link java.util.HashSet}. </li>
+ * <li> <b>Thread Safety & Encapsulation:</b> The {@link #getRecipientsList()} method returns
+ * a defensive copy of the recipients list, preventing external callers from modifying
+ * the internal state of the email object. </li>
+ * </ul>
+ * </p>
+ * @author Michele Brescia
+ */
 
 public class Email {
     private final String sender;

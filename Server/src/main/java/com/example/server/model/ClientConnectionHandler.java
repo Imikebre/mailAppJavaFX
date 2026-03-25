@@ -7,7 +7,22 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+/**
+ * Handles the continuous listening of incoming client connections and dispatches them to a thread pool.
+ * <p>
+ * This class acts as the main server loop. It listens on a specified port using a {@link ServerSocket}
+ * and delegates the actual communication with each client to a {@link ClientConnectionExecutor}
+ * running inside a fixed-size thread pool.
+ * </p>
+ * <p>
+ * <b>Key features:</b>
+ * <ul>
+ * <li> Uses a fixed thread pool of {@value #MAX_THREAD} to limit concurrent connections and prevent resource exhaustion. </li>
+ * <li> Implements a graceful shutdown mechanism: calling {@link #stopServer()} closes the socket,
+ * safely breaking the blocking {@code accept()} loop without causing application crashes. </li>
+ * </ul>
+ * </p>
+ */
 public class ClientConnectionHandler implements Runnable {
     private final ServerModel model;
     private final ServerSocket socket;

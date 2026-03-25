@@ -2,6 +2,8 @@ package com.example.client.controller;
 
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
+import com.example.client.utility.MailPreviewCell;
+import com.example.client.utility.PopupManager;
 import com.example.common.Email;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
@@ -11,13 +13,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import java.awt.*;
+
 import java.io.IOException;
+import java.util.List;
 
 /**
- * Run by JAVAFX Thread
+ * Main client application controller.
  */
-
 public class ClientController {
     @FXML
     public Label mailfield;
@@ -59,11 +61,11 @@ public class ClientController {
 
     public void startClient(){
         try{
-            model.updateMailBox("true");
+            model.updateMailBox("true"); // Get-all mode
             model.startPolling();
         }catch(MailException e){
             try{
-                new PopupManager(stage, "Couldn't setup mailbox", e.getMessage(), "ERROR");
+                new PopupManager().showView(stage, "Couldn't setup mailbox", e.getMessage(), "ERROR");
             }
             catch(IOException ex){
                 ex.printStackTrace();
@@ -73,8 +75,8 @@ public class ClientController {
         sendMail.setOnAction(e -> { new MailSendController(model); });
 
         model.getSelectedMailProperty().addListener((ListChangeListener<Email>) c -> {
-            c.next();
-            if (c.wasAdded()) { new MailViewDetails(model, c.getAddedSubList().getFirst()); }
+            while(c.next())
+                if (c.wasAdded()) { new MailViewDetails(model, c.getAddedSubList().getFirst()); }
         });
 
         setupMailNotification();
@@ -83,15 +85,18 @@ public class ClientController {
 
     private void setupMailNotification() {
         model.getAllMail().addListener((ListChangeListener<Email>) c -> {
-            c.next();
-            if (c.wasAdded() && setupProperty.getValue()) {
-                for(Email email : c.getAddedSubList())
-                    try{
-                        new PopupManager(new Stage(), "New mail!", "New mail from : " + email.getSender());
-                    }catch(IOException ex){
-                        System.err.println(ex.getMessage());
-                    }
-            }
+            while(c.next())
+                if (c.wasAdded() && setupProperty.getValue()) {
+                    List<? extends Email> newMails =  c.getAddedSubList();
+                        try{
+                            if (newMails.size() == 1)  // shows only the sender
+                                new PopupManager().showView(new Stage(), "New mail!", "New mail from: " + newMails.getFirst().getSender(),"Notification");
+                            else if (newMails.size() > 1) // Shows how many mails have been received
+                                new PopupManager().showView(new Stage(), "New mails!", "You received " + newMails.size() + " new emails.", "Notification");
+                        }catch(IOException ex){
+                            System.err.println(ex.getMessage());
+                        }
+                }
         });
     }
 

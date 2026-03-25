@@ -7,10 +7,11 @@
 
 <AnchorPane prefHeight="95.0" prefWidth="262.0" style="-fx-background-color: #F5F5DC; -fx-border-radius: 5px;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label fx:id="errorList" alignment="TOP_LEFT" layoutX="22.0" layoutY="14.0" prefHeight="33.0" prefWidth="218.0" text="New Mail from : " wrapText="true">
+        <Label fx:id="infoList" alignment="TOP_LEFT" layoutX="22.0" layoutY="14.0" text="New Mail from : " wrapText="true">
             <font>
                 <Font size="12.0" />
-            </font></Label>
+            </font>
+      </Label>
         <Button fx:id="button" layoutX="69.0" layoutY="55.0" prefHeight="23.0" prefWidth="124.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;" text="Close to continue" textFill="WHITE" />
     </children>
 </AnchorPane>

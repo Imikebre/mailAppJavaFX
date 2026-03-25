@@ -13,4 +13,6 @@ module com.example.client {
     opens com.example.client.controller to javafx.fxml;
     exports com.example.client.model;
     opens com.example.client.model to javafx.fxml;
+    exports com.example.client.utility;
+    opens com.example.client.utility to javafx.fxml;
 }

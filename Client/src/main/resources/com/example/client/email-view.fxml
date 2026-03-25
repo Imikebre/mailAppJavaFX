@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox style="-fx-background-color: #F5F5DC;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<VBox style="-fx-background-color: #F5F5DC;" xmlns="http://javafx.com/javafx/21.0.6" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="52.0" prefWidth="414.0" spacing="10">
          <children>
@@ -22,17 +22,16 @@
                </font>
             </Label>
             <Region prefHeight="41.0" prefWidth="110.0" HBox.hgrow="ALWAYS" />
-
-                                     <Button fx:id="forward" prefHeight="14.0" prefWidth="41.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+             <Button fx:id="deleteEmail" prefHeight="33.0" prefWidth="33.0" style="-fx-background-color: red; -fx-background-radius: 5;">
                  <graphic>
-                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                     <ImageView fitHeight="25.0" fitWidth="24.0" preserveRatio="true">
                          <image>
-                             <Image url="@images/forward.png" />
+                             <Image url="@images/bin.png" />
                          </image>
                      </ImageView>
                  </graphic>
                  <tooltip>
-                     <Tooltip text="Forward To" />
+                     <Tooltip text="Delete mail ( irreversible )" />
                  </tooltip>
              </Button>
             <Region layoutX="10.0" layoutY="10.0" prefHeight="41.0" prefWidth="10.0" />
@@ -86,7 +85,7 @@
       <HBox prefHeight="41.0" prefWidth="414.0">
          <children>
             <Region prefHeight="41.0" prefWidth="28.0" />
-             <Button fx:id="replyAll" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+             <Button fx:id="replyAll" prefHeight="30.0" prefWidth="41.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
                  <graphic>
                      <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
                          <image>
@@ -100,7 +99,7 @@
              </Button>
             <Region prefHeight="41.0" prefWidth="23.0" />
 
-                   <Button fx:id="reply" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
+                   <Button fx:id="reply" prefHeight="30.0" prefWidth="41.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
                  <graphic>
                      <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
                          <image>
@@ -113,16 +112,17 @@
                  </tooltip>
              </Button>
             <Region prefHeight="41.0" prefWidth="236.0" />
-             <Button fx:id="deleteEmail" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: red; -fx-background-radius: 5;">
+
+                                     <Button fx:id="forward" prefHeight="30.0" prefWidth="41.0" style="-fx-background-color: #733B73; -fx-background-radius: 5;">
                  <graphic>
-                     <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                     <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
                          <image>
-                             <Image url="@images/bin.png" />
+                             <Image url="@images/forward.png" />
                          </image>
                      </ImageView>
                  </graphic>
                  <tooltip>
-                     <Tooltip text="Delete mail ( irreversible )" />
+                     <Tooltip text="Forward To" />
                  </tooltip>
              </Button>
             <Region prefHeight="41.0" prefWidth="27.0" />

@@ -2,6 +2,7 @@ package com.example.client.controller;
 
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
+import com.example.client.utility.PopupManager;
 import com.example.common.Email;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -12,15 +13,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+/**
+ * A mail preview controller whose main task is to provide a detailed view of an incoming Email object.
+ * Through the UI buttons, it creates a MailSendController with pre-filled fields to speed up replying and forwarding operations
+ */
 public class MailViewDetails {
     ClientModel model;
-    Logger logger = Logger.getLogger("MailClient");
     Stage stage;
 
     @FXML
@@ -40,10 +42,14 @@ public class MailViewDetails {
     @FXML
     TextArea bodyArea;
 
+    /**
+     * Constructs a MailViewDetails object
+     * @param clientModel application model
+     * @param email to be displayed
+     */
     public MailViewDetails(ClientModel clientModel, Email email) {
         this.model = clientModel;
         setView(email);
-        logger.info("Mail view has been created");
     }
 
     private void setView(Email email) {
@@ -65,35 +71,32 @@ public class MailViewDetails {
         stage.setAlwaysOnTop(true);
         stage.setResizable(false);
 
-        stage.setOnCloseRequest(event -> {
-            new Thread(() -> {
+        stage.setOnCloseRequest(event -> { // Deselects mail on closing, allows MailPreviewCell to successfully delete said object
                 model.deselectMail(email);
-            }).start();
         });
-
 
         senderLabel.setText(email.getSender());
         recipientsLabel.setText(email.getRecipients());
         subjectLabel.setText(email.getSubject());
         bodyArea.setText(email.getBody());
 
-        deleteEmail.setOnAction(event -> { // TODO check
+        deleteEmail.setOnAction(event -> {
             new Thread(() -> {
                 model.deselectMail(email);
                 try{
-                    model.forceDeleteMail(email);
-                    Platform.runLater(()->{stage.close();}); // UI handling
+                    model.forceDeleteMail(email); // force deletes to bypass selected mail restriction
+                    Platform.runLater(()-> stage.close()); // UI operations run by JavaFX thread
                 }
                 catch(MailException e){
-                    Platform.runLater(()->{ // UI handling
+                    Platform.runLater(()->{ // UI operations run by JavaFX thread
                         try{
-                            new PopupManager(stage, "Couldn't delete email", e.getMessage(), "ERROR");
+                            new PopupManager().showView(stage, "Couldn't delete email", e.getMessage(), "ERROR");
                         }
                         catch(IOException ex){
                             ex.printStackTrace();
                         }
                     });
-                    model.selectMail(email); // Return to selected state
+                    model.selectMail(email); // Return to selected state if deletion failed
                 }
             }).start();
         });

@@ -2,11 +2,12 @@ package com.example.server;
 
 import com.example.server.model.ServerModel;
 import com.example.server.exceptions.ServerModelException;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class ServerController {
@@ -27,6 +28,8 @@ public class ServerController {
         this.model = model;
 
         this.model.getLogStringProperty().addListener((observable, oldValue, newValue) -> {
+            if(console.getLength() > 50000 )
+                console.clear();
             if(newValue.equals("Shutting down")) {
                 console.setStyle("-fx-text-fill: red;");
             }
@@ -96,5 +99,16 @@ public class ServerController {
     public void clearView() {
         console.clear();
         console.appendText("Console has been cleared\n");
+    }
+    @FXML
+    public void saveLog() {
+        File logFile = new File(model.getDataDir() + "/server_log.txt");
+
+        try (FileWriter fw = new FileWriter(logFile)) {
+            fw.write(console.getText());
+            console.appendText("\n[SYSTEM] Log saved successfully to: " + logFile.getAbsolutePath() + "\n");
+        } catch (IOException e) {
+            console.appendText("\n[SYSTEM ERROR] Could not save log: " + e.getMessage() + "\n");
+        }
     }
 }

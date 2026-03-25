@@ -13,6 +13,10 @@ class StorageManager {
     private final String dataDir = System.getProperty("user.home") + "/mailAppJavaBresciaP3/data";
     private final Gson gson = new Gson();
 
+    String getDataDir(){
+        return dataDir;
+    }
+
     void saveState(StorageData data) throws ModelException {
         saveDataToFile(data);
     }
