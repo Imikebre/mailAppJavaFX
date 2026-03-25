@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  * @author Michele Brescia
  */
 class ClientConnectionExecutor implements Runnable {
-    private Socket incoming;
-    private ServerModel model;
+    private final Socket incoming;
+    private final ServerModel model;
     private long threadId;
 
     ClientConnectionExecutor(Socket socket,ServerModel model) {
@@ -42,7 +42,7 @@ class ClientConnectionExecutor implements Runnable {
 
     @Override
     public void run() {
-        threadId = Thread.currentThread().getId();
+        threadId = Thread.currentThread().threadId();
 
         try{
             model.setLogString(threadId + " - Handling request ...");

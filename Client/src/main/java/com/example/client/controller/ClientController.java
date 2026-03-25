@@ -44,7 +44,7 @@ public class ClientController {
      * True if setup routine is completed
      * False if setup routine is not completed
      */
-    private SimpleBooleanProperty setupProperty = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty setupProperty = new SimpleBooleanProperty(false);
     private Stage stage;
 
     public void setStage(Stage stage) {
@@ -73,7 +73,7 @@ public class ClientController {
             }
         }
 
-        sendMail.setOnAction(e -> { new MailSendController(model); });
+        sendMail.setOnAction(e -> new MailSendController(model));
 
         model.getSelectedMailProperty().addListener((ListChangeListener<Email>) c -> {
             while(c.next())

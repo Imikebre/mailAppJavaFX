@@ -115,8 +115,8 @@ class StorageManager {
     }
 
     static class StorageData {
-        transient ArrayList<String> users;
-        long idCounter = 0;
+        transient ArrayList<String> users; // Won't be serialized by Gson
+        long idCounter;
 
         StorageData( long id) {
             idCounter = id;

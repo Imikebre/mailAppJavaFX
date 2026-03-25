@@ -47,7 +47,7 @@ public class ServerModel {
     private static final String mailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
 
-    public ServerModel() throws IOException {
+    public ServerModel(){
     }
 
     public void initialize(){

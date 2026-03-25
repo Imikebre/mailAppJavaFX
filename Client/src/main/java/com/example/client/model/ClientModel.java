@@ -143,14 +143,17 @@ public class ClientModel {
 
             String message = in.nextLine();
 
-            if(message.equals("ERR"))
+            if(message.equals("ERR")){
+                if (mode.equals("true")) { Platform.runLater(() -> setupProperty.setValue(true)); }
                 throw new MailException(in.nextLine());
+            }
 
             if(message.equals("START")){
 
                 message = in.nextLine();
 
                 if(message.equals("END")){
+                    if (mode.equals("true")) { Platform.runLater(() -> setupProperty.setValue(true)); }
                     return;
                 }
 
@@ -175,7 +178,6 @@ public class ClientModel {
                     Platform.runLater(() ->{
                         mails.add(new Email(sender, recipientsList, subject, body, sentDate, id));
                         emptyProperty.setValue(mails.isEmpty());
-                        emptyProperty.setValue(mails.isEmpty());
                     });
                 }
 
@@ -189,6 +191,7 @@ public class ClientModel {
         catch (IOException  e){
             if(connectedProperty.getValue())
                 connectedProperty.setValue(false);
+            if (mode.equals("true")) { Platform.runLater(() -> setupProperty.setValue(true)); }
             throw new MailException("Could not connect to the server : " + e.getMessage());
         }
     }
@@ -276,7 +279,7 @@ public class ClientModel {
         Thread pollingThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(5000); // TODO busy waiting alternative
+                    Thread.sleep(5000);
                     updateMailBox("false");
                 } catch (InterruptedException e) {
                     break;

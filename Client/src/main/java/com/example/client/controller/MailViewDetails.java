@@ -81,25 +81,23 @@ public class MailViewDetails {
         subjectLabel.setText(email.getSubject());
         bodyArea.setText(email.getBody());
 
-        deleteEmail.setOnAction(event -> {
-            new Thread(() -> {
-                try{
-                    model.forceDeleteMail(email); // force deletes to bypass selected mail restriction
-                    model.deselectMail(email);
-                    Platform.runLater(()-> stage.close()); // UI operations run by JavaFX thread
-                }
-                catch(MailException e){
-                    Platform.runLater(()->{ // UI operations run by JavaFX thread
-                        try{
-                            new PopupManager().showView(stage, "Couldn't delete email", e.getMessage(), "ERROR");
-                        }
-                        catch(IOException ex){
-                            ex.printStackTrace();
-                        }
-                    });
-                }
-            }).start();
-        });
+        deleteEmail.setOnAction(event -> new Thread(() -> {
+            try{
+                model.forceDeleteMail(email); // force deletes to bypass selected mail restriction
+                model.deselectMail(email);
+                Platform.runLater(()-> stage.close()); // UI operations run by JavaFX thread
+            }
+            catch(MailException e){
+                Platform.runLater(()->{ // UI operations run by JavaFX thread
+                    try{
+                        new PopupManager().showView(stage, "Couldn't delete email", e.getMessage(), "ERROR");
+                    }
+                    catch(IOException ex){
+                        ex.printStackTrace();
+                    }
+                });
+            }
+        }).start());
 
         replyAll.setOnAction(event -> {
             List<String> recipients = new ArrayList<>(email.getRecipientsList());
@@ -111,13 +109,10 @@ public class MailViewDetails {
 
         reply.setOnAction(event -> {
             List<String> recipients = List.of(email.getSender());
-
             new MailSendController(model, recipients, "RE : " + email.getSubject(), ("\n ─────────────────────────── \n Reply to : " + email.getSender() + "\n" + email.getBody()));
         });
 
-        forward.setOnAction(event -> {
-            new MailSendController(model, List.of(""), "FWD : " + email.getSubject(), ("\n ─────────────────────────── \n FWD from : " + email.getSender() + "\n" + email.getBody()));
-        });
+        forward.setOnAction(event -> new MailSendController(model, List.of(""), "FWD : " + email.getSubject(), ("\n ─────────────────────────── \n FWD from : " + email.getSender() + "\n" + email.getBody())));
 
         stage.show();
     }

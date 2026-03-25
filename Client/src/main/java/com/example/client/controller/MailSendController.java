@@ -21,11 +21,11 @@ import java.util.List;
  * @author Michele Brescia
  */
 public class MailSendController {
-    private ClientModel model;
+    private final ClientModel model;
     private Stage stage;
-    private List<String> defaultRecipients;
-    private String defaultSubject;
-    private String defaultBody;
+    private final List<String> defaultRecipients;
+    private final String defaultSubject;
+    private final String defaultBody;
 
     @FXML
     private TextField subjectBox;
@@ -75,9 +75,7 @@ public class MailSendController {
         stage.setAlwaysOnTop(true);
         stage.setResizable(false);
 
-        sendMail.setOnAction(e -> {
-            sendMail();
-        });
+        sendMail.setOnAction(e -> sendMail());
 
         subjectBox.setText(defaultSubject);
         recipientsBox.setText(String.join(", ", defaultRecipients)); // Follows sendMail method's protocol

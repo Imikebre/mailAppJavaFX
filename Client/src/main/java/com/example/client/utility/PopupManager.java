@@ -47,7 +47,7 @@ public class PopupManager {
             this.infoList.setManaged(false);
         }
 
-        button.setOnAction(e -> {alertStage.close();});
+        button.setOnAction(e -> alertStage.close() );
         alertStage.showAndWait(); // Block FX thread until the window is closed
     }
 }

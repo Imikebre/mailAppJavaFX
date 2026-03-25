@@ -46,7 +46,7 @@ public class MailAppTest {
             users.add(i + "@" + i + ".com");
 
         List<Thread> threads = new ArrayList<>();
-        int N_SESSIONS_PER_USER = 2; // Number of multiple sessions launched for every user
+        int N_SESSIONS_PER_USER = 10; // Number of multiple sessions launched for every user
 
         Counter sendCount = new Counter();
 
@@ -126,7 +126,7 @@ class UserTest implements Runnable{
             t1.join();
             t2.join();
             Thread.sleep(5000); // waits for mails to be loaded
-            model.TestDeleteAllMails();
+            //model.TestDeleteAllMails();
             model.sendMail(List.of(user), "Self", "test");
             sendCount.increment();
         }catch(Exception e){
