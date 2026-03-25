@@ -1,9 +1,7 @@
 package com.example.client.controller;
 
+import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
-import com.example.common.Email;
-import javafx.animation.PauseTransition;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,12 +9,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.Duration;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
+/**
+ * A single Threaded Controller that handles the login routine using the ClientModel methods
+ * It's responsible to configure the Client Controller to start the application.
+ */
 public class LoginController {
     @FXML
     public Button loginButton;
@@ -27,6 +25,12 @@ public class LoginController {
 
     ClientModel model;
 
+    Stage stage;
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
     public void setModel(ClientModel model) {
         this.model = model;
     }
@@ -34,13 +38,13 @@ public class LoginController {
 
     @FXML
     public void onLogin(){
-        if(!model.isValidAddress(loginMail.getText())) { //TODO
+        try { model.isValidAddress(loginMail.getText()); }
+        catch ( MailException e ){
             try{
-                new PopupManager(new Stage(), "Could not login", "Please insert a valid mail address : example@at.mail.com");
-            } catch (IOException e) {
-                System.err.println("Could not open popup: " + e.getMessage());
+                new PopupManager(new Stage(), "Could not login", e.getMessage(), "ERROR");
+            } catch (IOException x) {
+                System.err.println("Could not open popup: " + x.getMessage());
             }
-
             return;
         }
 
@@ -60,11 +64,10 @@ public class LoginController {
         Parent fxmlroot = loader.load();
 
         ClientController controller = loader.getController();
+        controller.setStage(stage);
         controller.setModel(model);
+        controller.startClient();
 
-        testEmails(model);
-
-        Stage stage = (Stage) loginMail.getScene().getWindow(); // get Stage from an FXML element
         stage.getScene().setRoot(fxmlroot); // Reuse previous scene
         stage.setTitle("");
         stage.setHeight(400);
@@ -73,20 +76,4 @@ public class LoginController {
         stage.show();
     }
 
-    private static void testEmails(ClientModel clientModel) {
-
-        clientModel.getMailsFromFile(
-                FXCollections.observableArrayList(
-                        new Email("anna@example.com", List.of("mario@example.com, luca@libero.it, giovanni@edu.com, mario@example.com, luca@libero.it, giovanni@edu.com"), "Presentazione cliente", "Allego le slide per la presentazione di lunedì.", LocalDateTime.now()),
-                        new Email("mario@example.com", List.of("boss@example.com"), "Stato avanzamento", "Ti aggiorno sullo stato del progetto: siamo in linea con i tempi.", LocalDateTime.now()),
-                        new Email("boss@example.com", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!", LocalDateTime.now())
-                )
-        );
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(15));
-        pause.setOnFinished(event -> {
-            clientModel.addMail(new Email("PROVA", List.of("mario@example.com"), "Ottimo lavoro", "Complimenti per i risultati raggiunti questo mese!", LocalDateTime.now()));
-        });
-        pause.play();
-    }
 }

@@ -3,6 +3,7 @@ package com.example.client.controller;
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
 import com.example.common.Email;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 public class MailViewDetails {
     ClientModel model;
     Logger logger = Logger.getLogger("MailClient");
+    Stage stage;
 
     @FXML
     Button deleteEmail;
@@ -56,7 +58,7 @@ public class MailViewDetails {
             return;
         }
 
-        Stage stage = new Stage();
+        stage = new Stage();
         Scene scene = new Scene(fxmlroot);
         stage.setScene(scene);
 
@@ -64,7 +66,9 @@ public class MailViewDetails {
         stage.setResizable(false);
 
         stage.setOnCloseRequest(event -> {
-            model.deselectMail(email);
+            new Thread(() -> {
+                model.deselectMail(email);
+            }).start();
         });
 
 
@@ -73,10 +77,25 @@ public class MailViewDetails {
         subjectLabel.setText(email.getSubject());
         bodyArea.setText(email.getBody());
 
-        deleteEmail.setOnAction(event -> {
-            model.deselectMail(email);
-            model.forceDeleteMail(email);
-            stage.close();
+        deleteEmail.setOnAction(event -> { // TODO check
+            new Thread(() -> {
+                model.deselectMail(email);
+                try{
+                    model.forceDeleteMail(email);
+                    Platform.runLater(()->{stage.close();}); // UI handling
+                }
+                catch(MailException e){
+                    Platform.runLater(()->{ // UI handling
+                        try{
+                            new PopupManager(stage, "Couldn't delete email", e.getMessage(), "ERROR");
+                        }
+                        catch(IOException ex){
+                            ex.printStackTrace();
+                        }
+                    });
+                    model.selectMail(email); // Return to selected state
+                }
+            }).start();
         });
 
         replyAll.setOnAction(event -> {
@@ -86,11 +105,13 @@ public class MailViewDetails {
 
             new MailSendController(model, recipients , "RE : " + email.getSubject(), ("\n ─────────────────────────── \n Reply to : " + email.getSender() + "\n" + email.getBody()));
         });
+
         reply.setOnAction(event -> {
             List<String> recipients = List.of(email.getSender());
 
             new MailSendController(model, recipients, "RE : " + email.getSubject(), ("\n ─────────────────────────── \n Reply to : " + email.getSender() + "\n" + email.getBody()));
         });
+
         forward.setOnAction(event -> {
             new MailSendController(model, List.of(""), "FWD : " + email.getSubject(), ("\n ─────────────────────────── \n FWD from : " + email.getSender() + "\n" + email.getBody()));
         });

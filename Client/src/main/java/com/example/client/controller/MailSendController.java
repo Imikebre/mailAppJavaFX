@@ -2,16 +2,14 @@ package com.example.client.controller;
 
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
-import com.example.common.Email;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -81,26 +79,33 @@ public class MailSendController {
         List<String> recipients = Arrays.asList(recipientsBox.getText().trim().split("\\s*,\\s*"));
         String body = bodyBox.getText();
 
-        try{
-            model.sendMail(recipients, subject, body);
+        new Thread(() -> {
             try{
-                new PopupManager(stage, "Mail sent!", "");
-                stage.close();
-            } catch (IOException e) {
-                System.err.println("Could not open pop-up " + e.getMessage());
-                e.printStackTrace();
-                stage.close();
+                model.sendMail(recipients, subject, body);
+                Platform.runLater(() -> {
+                    try{
+                        new PopupManager(stage, "Mail sent!", "");
+                        stage.close();
+                    } catch (IOException e) {
+                        System.err.println("Could not open pop-up " + e.getMessage());
+                        e.printStackTrace();
+                        stage.close();
+                    }
+                });
             }
-        }
-        catch(MailException e){
-            try{
-                new PopupManager(stage, "Could not send mail!", e.getMessage());
-            } catch (IOException x) {
-                System.err.println("Could not open pop-up following mail sending errors" + x.getMessage());
-                x.printStackTrace();
-                stage.close();
+            catch(MailException e){
+                Platform.runLater(() -> {
+                    try{
+                        new PopupManager(stage, "Could not send mail!", e.getMessage(), "ERROR");
+                    } catch (IOException x) {
+                        System.err.println("Could not open pop-up following mail sending errors" + x.getMessage());
+                        x.printStackTrace();
+                        stage.close();
+                    }
+                });
             }
-        }
+        }).start();
+
 
     }
 }

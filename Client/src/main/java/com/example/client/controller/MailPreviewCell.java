@@ -3,6 +3,7 @@ package com.example.client.controller;
 import com.example.client.exceptions.MailException;
 import com.example.client.model.ClientModel;
 import com.example.common.Email;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -50,7 +51,6 @@ public class MailPreviewCell extends ListCell<Email> {
         setOnMouseClicked(event -> {
                 if (getItem() == null) return;
                 model.selectMail(getItem());
-                getItem().setRead();
                 getListView().getSelectionModel().clearSelection(); //removes selection
             });
     }
@@ -67,32 +67,27 @@ public class MailPreviewCell extends ListCell<Email> {
         emailSender.setText(item.getSender());
         emailSubject.setText(item.getSubject());
         emailPreview.setText(item.getBody().substring(0, Math.min(50, item.getBody().length())));
-        if(item.isRead())
-            unreadBadge.setVisible(false);
-        else
-            unreadBadge.setVisible(true);
 
-        if(item.getSentDate() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
-            String formatted = item.getSentDate().format(formatter);
-            emailDate.setText(formatted);
-        }
-        else
-            emailDate.setVisible(false);
+        emailDate.setText(item.getSentDate());
 
         setGraphic(fxmlroot);
     }
 
     private void deleteMail() {
-        try{
-            model.deleteMail(getItem());
-        }
-        catch(MailException e){
+        new Thread(() -> {
             try{
-                new PopupManager(new Stage(), "Could not delete mail", e.getMessage());
-            } catch (IOException ex) {
-                System.err.println("Could not delete mail: " + ex.getMessage());
+                model.deleteMail(getItem());
             }
-        }
+            catch(MailException e){
+                Platform.runLater(()->{
+                    try{
+                        new PopupManager(new Stage(), "Could not delete mail", e.getMessage(), "ERROR");
+                    } catch (IOException ex) {
+                        System.err.println("Could not delete mail: " + ex.getMessage());
+                    }
+                });
+
+            }
+        });
     }
 }

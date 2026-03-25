@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * @brief Starts the Mail Client application by starting the initial Scene and the login Controller and Model
+ *  Starts the Mail Client application by starting the initial Scene and the login Controller and model
  */
 public class ClientApplication extends Application {
     public void start(Stage stage) throws IOException {
@@ -22,6 +22,7 @@ public class ClientApplication extends Application {
         ClientModel model = new ClientModel();
 
         controller.setModel(model);
+        controller.setStage(stage);
 
         Scene scene = new Scene(fxmlroot); // Dimension are already set in the fxml
         stage.setTitle("");

@@ -17,8 +17,17 @@ public class PopupManager {
     @FXML
     Button button;
 
-    public PopupManager(Stage parentStage, String title, String errors) throws IOException {
-        FXMLLoader loader = new FXMLLoader(PopupManager.class.getResource("/com/example/client/popup.fxml"));
+    public  PopupManager(Stage parentStage, String title, String errors) throws IOException {
+        this(parentStage, title, errors, "Notification");
+    }
+
+    public PopupManager(Stage parentStage, String title, String errors, String alertType) throws IOException {
+        FXMLLoader loader;
+        if(alertType.equals("ERROR"))
+            loader = new FXMLLoader(PopupManager.class.getResource("/com/example/client/popup.fxml"));
+        else
+            loader = new FXMLLoader(PopupManager.class.getResource("/com/example/client/notification.fxml"));
+
         loader.setController(this);
         Parent root = loader.load();
 
@@ -34,6 +43,7 @@ public class PopupManager {
 
         button.setOnAction(e -> ((Stage) button.getScene().getWindow()).close());
         alertStage.setOnCloseRequest(e -> ((Stage) button.getScene().getWindow()).close());
+
         alertStage.showAndWait();
 
     }

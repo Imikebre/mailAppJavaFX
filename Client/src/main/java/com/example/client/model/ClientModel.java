@@ -1,17 +1,29 @@
 package com.example.client.model;
 import com.example.client.exceptions.MailException;
 import com.example.common.Email;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class ClientModel {
+    private static final int serverPort = 1430;
+    private static final String ip = "127.0.0.1";
+
     private String mailAddress=""; // user mail address
     private final ObservableList<Email> mails = FXCollections.observableArrayList(); // mails stored as incoming and note deleted
     private final ObservableList<Email> selectedMails = FXCollections.observableArrayList(); // mails open in view mode
-    private SimpleBooleanProperty emptyProperty = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty emptyProperty = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty connectedProperty = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty setupProperty = new SimpleBooleanProperty(false);
 
     public ClientModel() {}
 
@@ -21,9 +33,9 @@ public class ClientModel {
     }
 
     public String getUserMail() { return this.mailAddress; }
-
+    public SimpleBooleanProperty getSetupProperty() { return this.setupProperty; }
     public SimpleBooleanProperty mailIsEmptyProperty() { return emptyProperty; }
-
+    public SimpleBooleanProperty getIsConnectedProperty() { return connectedProperty; }
     public ObservableList<Email> getSelectedMailProperty() {
         return this.selectedMails;
     }
@@ -32,41 +44,138 @@ public class ClientModel {
         return this.mails;
     }
 
-    public void addMail(Email email) {
-        this.mails.addFirst(email);
-
-        if(!mails.isEmpty())
-            emptyProperty.setValue(false);
-    }
-
     public void deleteMail(Email email) throws MailException {
         if(selectedMails.contains(email))
             throw new MailException("Mail is opened in view mode, please close the window before deleting");
 
-        this.mails.remove(email);
-
-        if(mails.isEmpty())
-            emptyProperty.setValue(true);
+        forceDeleteMail(email);
     }
 
-    public void forceDeleteMail(Email email) {
-        this.mails.remove(email);
+    public void TestDeleteAllMails() throws MailException {
+        List<Email> snap;
 
-        if(mails.isEmpty())
-            emptyProperty.setValue(true);
+        synchronized (this.mails) {
+            snap = new ArrayList<>(this.mails);
+        }
+
+        for (Email email : snap) {
+            forceDeleteMail(email);
+        }
+    }
+
+    public void forceDeleteMail(Email email) throws MailException{
+
+        try ( Socket socket = new Socket(ip, serverPort) ){
+            Scanner in = new Scanner(socket.getInputStream());
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println("DELETE");
+            out.println(mailAddress);
+            out.println("START");
+            out.println(mailAddress);
+            out.println(email.getId());
+            out.println("END");
+
+            String message = in.nextLine();
+            if(message.equals("OK")){
+                Platform.runLater(()->{
+                    this.mails.remove(email);
+
+                    if(mails.isEmpty())
+                        emptyProperty.setValue(true);
+                });
+            }
+            else if (message.equals("ERR"))
+                throw new MailException(in.nextLine());
+            else
+                throw new MailException("Could not interpret server message" + message);
+        }
+        catch (IOException  e){
+            throw new MailException("Could not connect to the server : " + e.getMessage());
+        }
     }
 
     public void selectMail(Email email) {
-        if (selectedMails.contains(email))
-            return;
-        selectedMails.add(email);
+        Platform.runLater(()->{
+            if (selectedMails.contains(email))
+                return;
+            selectedMails.add(email);
+        });
     }
-    public void deselectMail(Email email) { selectedMails.remove(email); System.out.println("Deselect mail"); }
 
+    public void deselectMail(Email email) {
+        Platform.runLater(()->{
+            selectedMails.remove(email);
+        });
+    }
 
-    public void getMailsFromFile(ObservableList<Email> mails) {
-        this.mails.addAll(mails);
-        emptyProperty.setValue(false);
+    public void updateMailBox(String mode) throws MailException {
+        try ( Socket socket = new Socket(ip, serverPort) ){
+
+            Platform.runLater(()->{
+                if(!connectedProperty.getValue())
+                    connectedProperty.setValue(true);
+            });
+
+            Scanner in = new Scanner(socket.getInputStream());
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println("UPDATE");
+            out.println(mode);
+            out.println(mailAddress);
+
+            String message = in.nextLine();
+
+            if(message.equals("ERR"))
+                throw new MailException(in.nextLine());
+
+            if(message.equals("START")){
+
+                message = in.nextLine();
+
+                if(message.equals("END")){
+                    return;
+                }
+
+                while(!message.equals("END")){
+                    final String sender;
+                    final String recipients;
+                    final String subject;
+                    final String body;
+                    final String sentDate;
+                    final long id;
+
+                    sender = message;
+                    recipients = in.nextLine();
+                    subject = in.nextLine();
+                    body = in.nextLine().replace("\\n", "\n");
+                    sentDate = in.nextLine();
+                    id = Long.parseLong(in.nextLine());
+                    message = in.nextLine();
+
+                    List<String> recipientsList = Arrays.asList(recipients.split(","));
+
+                    Platform.runLater(() ->{
+                        mails.add(new Email(sender, recipientsList, subject, body, sentDate, id));
+                        emptyProperty.setValue(mails.isEmpty());
+
+                        if(!setupProperty.getValue())
+                            setupProperty.setValue(true);
+                        emptyProperty.setValue(mails.isEmpty());
+                    });
+                }
+
+            }
+            else{
+                throw new MailException("Could not interpret server message" + message);
+            }
+
+        }
+        catch (IOException  e){
+            if(connectedProperty.getValue())
+                connectedProperty.setValue(false);
+            throw new MailException("Could not connect to the server : " + e.getMessage());
+        }
     }
 
     public void sendMail (List<String> recipients, String subject, String body) throws MailException{
@@ -75,9 +184,30 @@ public class ClientModel {
 
         if(!validationResult.isEmpty())
             throw new MailException(validationResult);
-        else{
-            Email outGoingMail = new Email(mailAddress,recipients, subject, body);
-            System.out.println(outGoingMail);
+
+        try ( Socket socket = new Socket(ip, serverPort) ){
+            Scanner in = new Scanner(socket.getInputStream());
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println("SEND");
+            out.println(mailAddress);
+            out.println("START");
+            out.println(mailAddress);
+            out.println(String.join(", ", recipients));
+            out.println(subject);
+            out.println(body.replace("\n", "\\n"));
+            out.println("END");
+
+            String message = in.nextLine();
+            if(message.equals("OK"))
+                return;
+            else if (message.equals("ERR"))
+                throw new MailException(in.nextLine());
+            else
+                throw new MailException("Could not interpret server message" + message);
+        }
+        catch (IOException  e){
+            throw new MailException("Could not connect to the server : " + e.getMessage());
         }
     }
 
@@ -92,7 +222,7 @@ public class ClientModel {
                 errorMessage = errorMessage + "Duplicate recipients found\n";
 
             for(String recipient : recipients) {
-                if(!isValidAddress(recipient)){
+                if(!recipient.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
                     errorMessage = errorMessage + "Invalid mail address in one or more recipients\n";
                     break;
                 }
@@ -106,8 +236,42 @@ public class ClientModel {
         return errorMessage;
     }
 
-    public boolean isValidAddress(String mail){
+    public void isValidAddress(String mail) throws MailException{
         String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-        return mail.matches(regex);
+
+        if( !mail.matches(regex))
+            throw new MailException("Please insert a valid mail address : example@at.mail.com");
+
+        try ( Socket socket = new Socket(ip, serverPort) ){
+            Scanner in = new Scanner(socket.getInputStream());
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println("LOGIN");
+            out.println(mail);
+
+            if(in.nextLine().equals("ERR"))
+                throw new MailException(in.nextLine());
+        }
+        catch (IOException  e){
+            throw new MailException("Could not connect to the server : " + e.getMessage());
+        }
+    }
+
+    public void startPolling() {
+        Thread pollingThread = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(5000); // TODO busy waiting alternative
+                    updateMailBox("false");
+                } catch (InterruptedException e) {
+                    break;
+                }
+                catch (MailException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        });
+        pollingThread.setDaemon(true);
+        pollingThread.start();
     }
 }
